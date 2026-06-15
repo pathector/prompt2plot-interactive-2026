@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prompt2Plot - Interactive Student Data</title>
+  <!-- Import Inter Font for modern typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1e293b;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --paper: #fafaf9;
+      --panel: #ffffff;
+      --blue: #2f6f9f;
+      --gold: #d99b2b;
+      --green: #4f8f5f;
+      --focus: #0f766e;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.04), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    main {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+    }
+
+    aside {
+      border-right: 1px solid var(--line);
+      background: #fcfbf9;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: 2px 0 8px rgb(0 0 0 / 0.01);
+    }
+
+    section {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .header-group h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: #0f172a;
+    }
+
+    .header-group p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    h2 {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 4px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .input-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      border-radius: 8px;
+      min-height: 38px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgb(0 0 0 / 0.02);
+    }
+
+    select:focus {
+      border-color: var(--focus);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+    }
+
+    .checks {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .check:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    .check input {
+      accent-color: var(--focus);
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .buttons-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    button {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      border-radius: 8px;
+      min-height: 38px;
+      padding: 8px 16px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 1px 2px rgb(0 0 0 / 0.02);
+    }
+
+    button:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    button[aria-pressed="true"] {
+      border-color: var(--focus);
+      background: #f0fdfa;
+      color: var(--focus);
+    }
+
+    button#reset {
+      background: #f1f5f9;
+      border-color: transparent;
+      color: #475569;
+    }
+
+    button#reset:hover {
+      background: #e2e8f0;
+    }
+
+    .metrics {
+      display: grid;
+      gap: 12px;
+      margin-top: auto;
+      padding-top: 16px;
+    }
+
+    .metric {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .chart-wrap {
+      width: 100%;
+      height: calc(100vh - 48px);
+      min-height: 580px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .axis text {
+      fill: var(--muted);
+      font-size: 10px;
+      font-family: inherit;
+    }
+
+    .axis path, .axis line, .grid line {
+      stroke: var(--line);
+      stroke-width: 1;
+      shape-rendering: crispEdges;
+    }
+
+    .point {
+      cursor: pointer;
+      /* CSS transition for smooth animation of point positions */
+      transition: cx 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                  cy 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                  r 0.15s ease, 
+                  stroke-width 0.15s ease, 
+                  stroke 0.15s ease,
+                  fill-opacity 0.15s ease;
+    }
+
+    .point:hover, .point.selected {
+      stroke: #0f172a;
+      stroke-width: 2.5px;
+      r: 7px !important;
+      fill-opacity: 1 !important;
+    }
+
+    .regression-line {
+      transition: d 0.4s cubic-bezier(0.16, 1, 0.3, 1), stroke-dasharray 0.3s ease;
+    }
+
+    .details {
+      border-top: 1px solid var(--line);
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      align-items: center;
+      background: #fafafa;
+    }
+
+    .detail-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      margin-bottom: 2px;
+    }
+
+    .detail-item strong {
+      display: block;
+      font-size: 14px;
+      color: #0f172a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Custom Tooltip Styling */
+    .tooltip {
+      position: absolute;
+      background: rgba(15, 23, 42, 0.95);
+      color: #ffffff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 100;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      line-height: 1.4;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .tooltip strong {
+      color: #38bdf8;
+      display: block;
+      font-size: 12px;
+      margin-bottom: 3px;
+    }
+
+    /* Custom scrollbar for sidebar */
+    aside::-webkit-scrollbar {
+      width: 6px;
+    }
+    aside::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    aside::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+    aside::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; }
+      aside { border-right: 0; border-bottom: 1px solid var(--line); }
+      .chart-wrap { height: auto; min-height: 520px; }
+      .details { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <aside>
+    <div class="header-group">
+      <h1>Student Performance</h1>
+      <p>Explore grade patterns by country, gender, variable pairing, and regression fit.</p>
+    </div>
+
+    <div class="control-group">
+      <h2>Variables</h2>
+      <div class="input-item">
+        <label for="xvar">X-axis</label>
+        <select id="xvar"></select>
+      </div>
+      <div class="input-item">
+        <label for="yvar">Y-axis</label>
+        <select id="yvar"></select>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <h2>Filters</h2>
+      <div class="input-item">
+        <label>Country</label>
+        <div class="checks" id="countryChecks"></div>
+      </div>
+      <div class="input-item">
+        <label>Gender</label>
+        <div class="checks" id="genderChecks"></div>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <h2>Mode</h2>
+      <div class="buttons-group">
+        <button id="regression" aria-pressed="true">Show regression</button>
+        <button id="reset">Reset view</button>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <h2>Statistics</h2>
+      <div class="metric">
+        <strong id="countMetric">0</strong>
+        <span>Visible observations</span>
+      </div>
+      <div class="metric">
+        <strong id="corrMetric">-</strong>
+        <span>Correlation (r)</span>
+      </div>
+      <div class="metric">
+        <strong id="slopeMetric">-</strong>
+        <span>Regression slope</span>
+      </div>
+    </div>
+  </aside>
+
+  <section>
+    <div class="chart-wrap">
+      <!-- Floating tooltip container -->
+      <div id="tooltip" class="tooltip"></div>
+      <svg id="chart" role="img" aria-label="Interactive scatterplot of student grades"></svg>
+      <div class="details" id="details">
+        <div class="detail-item"><span>Selection</span><strong>None</strong></div>
+        <div class="detail-item"><span>Country</span><strong>-</strong></div>
+        <div class="detail-item"><span>Gender</span><strong>-</strong></div>
+        <div class="detail-item"><span>X value</span><strong>-</strong></div>
+        <div class="detail-item"><span>Y value</span><strong>-</strong></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+const labels = {
+  math: "Mathematics",
+  econ: "Economics",
+  stat: "Statistics",
+  art: "Art"
+};
+
+const colors = {
+  AT: "#2f6f9f",
+  CH: "#d99b2b",
+  DE: "#4f8f5f"
+};
+
+const state = {
+  x: "math",
+  y: "art",
+  countries: new Set(["AT", "CH", "DE"]),
+  genders: new Set(["male", "female"]),
+  regression: true,
+  selected: null
+};
+
+let rows = [];
+
+function parseCsv(text) {
+  const lines = text.trim().split(/\r?\n/);
+  const header = lines.shift().replaceAll('"', '').split(",");
+  return lines.map(line => {
+    const values = line.replaceAll('"', '').split(",");
+    const row = {};
+    header.forEach((key, i) => row[key] = values[i]);
+    ["student_id", "math", "econ", "stat", "art", "isMale"].forEach(key => row[key] = Number(row[key]));
+    return row;
+  });
+}
+
+function initControls() {
+  const xSelect = document.getElementById("xvar");
+  const ySelect = document.getElementById("yvar");
+  Object.entries(labels).forEach(([key, label]) => {
+    xSelect.append(new Option(label, key));
+    ySelect.append(new Option(label, key));
+  });
+  xSelect.value = state.x;
+  ySelect.value = state.y;
+  xSelect.addEventListener("change", () => { state.x = xSelect.value; state.selected = null; render(); });
+  ySelect.addEventListener("change", () => { state.y = ySelect.value; state.selected = null; render(); });
+
+  makeChecks("countryChecks", ["AT", "CH", "DE"], state.countries, "country");
+  makeChecks("genderChecks", ["male", "female"], state.genders, "gender");
+
+  document.getElementById("regression").addEventListener("click", event => {
+    state.regression = !state.regression;
+    event.currentTarget.setAttribute("aria-pressed", String(state.regression));
+    render();
+  });
+  document.getElementById("reset").addEventListener("click", () => {
+    state.x = "math";
+    state.y = "art";
+    state.countries.clear();
+    ["AT", "CH", "DE"].forEach(value => state.countries.add(value));
+    state.genders.clear();
+    ["male", "female"].forEach(value => state.genders.add(value));
+    state.selected = null;
+    xSelect.value = state.x;
+    ySelect.value = state.y;
+    document.querySelectorAll("#countryChecks input, #genderChecks input").forEach(input => {
+      input.checked = true;
+    });
+    render();
+  });
+}
+
+function makeChecks(id, values, set, field) {
+  const host = document.getElementById(id);
+  values.forEach(value => {
+    const label = document.createElement("label");
+    label.className = "check";
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.checked = true;
+    input.addEventListener("change", () => {
+      if (input.checked) set.add(value);
+      else set.delete(value);
+      state.selected = null;
+      render();
+    });
+    const labelText = field === "gender" ? (value === "male" ? "Male" : "Female") : value;
+    label.append(input, document.createTextNode(labelText));
+    host.append(label);
+  });
+}
+
+function visibleRows() {
+  return rows.filter(row => state.countries.has(row.country) && state.genders.has(row.gender));
+}
+
+function stats(data) {
+  const n = data.length;
+  if (n < 2) return { r: NaN, slope: NaN, intercept: NaN };
+  const xs = data.map(d => d[state.x]);
+  const ys = data.map(d => d[state.y]);
+  const mx = xs.reduce((a, b) => a + b, 0) / n;
+  const my = ys.reduce((a, b) => a + b, 0) / n;
+  let sxx = 0, syy = 0, sxy = 0;
+  for (let i = 0; i < n; i++) {
+    sxx += (xs[i] - mx) ** 2;
+    syy += (ys[i] - my) ** 2;
+    sxy += (xs[i] - mx) * (ys[i] - my);
+  }
+  const slope = sxy / sxx;
+  return { r: sxy / Math.sqrt(sxx * syy), slope, intercept: my - slope * mx };
+}
+
+function scale(domain, range) {
+  const [d0, d1] = domain;
+  const [r0, r1] = range;
+  return value => r0 + (value - d0) * (r1 - r0) / (d1 - d0);
+}
+
+function render() {
+  const svg = document.getElementById("chart");
+  const rect = svg.getBoundingClientRect();
+  const width = Math.max(640, rect.width || 900);
+  const height = Math.max(440, rect.height || 560);
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.innerHTML = "";
+
+  const margin = { top: 40, right: 30, bottom: 60, left: 70 };
+  const innerW = width - margin.left - margin.right;
+  const innerH = height - margin.top - margin.bottom;
+  const data = visibleRows();
+  const x = scale([2, 10], [margin.left, margin.left + innerW]);
+  const y = scale([2, 10], [margin.top + innerH, margin.top]);
+
+  const ns = "http://www.w3.org/2000/svg";
+  const add = (name, attrs, parent = svg) => {
+    const el = document.createElementNS(ns, name);
+    Object.entries(attrs || {}).forEach(([key, value]) => el.setAttribute(key, value));
+    parent.appendChild(el);
+    return el;
+  };
+
+  // Add grid lines and ticks
+  for (let tick = 2; tick <= 10; tick += 1) {
+    const isMajor = tick % 2 === 0;
+    add("line", { 
+      x1: margin.left, 
+      y1: y(tick), 
+      x2: margin.left + innerW, 
+      y2: y(tick), 
+      stroke: isMajor ? "#e2e8f0" : "#f1f5f9",
+      "stroke-dasharray": isMajor ? "0" : "2,2"
+    });
+    if (isMajor) {
+      add("text", { x: margin.left - 12, y: y(tick) + 4, "text-anchor": "end", fill: "#64748b", "font-size": 10, "font-family": "inherit", "font-weight": "500" }).textContent = tick.toFixed(1);
+    }
+    
+    add("line", { 
+      x1: x(tick), 
+      y1: margin.top, 
+      x2: x(tick), 
+      y2: margin.top + innerH, 
+      stroke: isMajor ? "#e2e8f0" : "#f1f5f9",
+      "stroke-dasharray": isMajor ? "0" : "2,2"
+    });
+    if (isMajor) {
+      add("text", { x: x(tick), y: margin.top + innerH + 18, "text-anchor": "middle", fill: "#64748b", "font-size": 10, "font-family": "inherit", "font-weight": "500" }).textContent = tick.toFixed(1);
+    }
+  }
+
+  // Draw axes lines
+  add("line", { x1: margin.left, y1: margin.top + innerH, x2: margin.left + innerW, y2: margin.top + innerH, stroke: "#1e293b", "stroke-width": "1.5" });
+  add("line", { x1: margin.left, y1: margin.top, x2: margin.left, y2: margin.top + innerH, stroke: "#1e293b", "stroke-width": "1.5" });
+
+  // Axis Titles
+  add("text", { x: margin.left + innerW / 2, y: height - 15, "text-anchor": "middle", fill: "#0f172a", "font-size": 12, "font-weight": "600", "font-family": "inherit" }).textContent = labels[state.x] + " grade";
+  add("text", { x: 18, y: margin.top + innerH / 2, transform: `rotate(-90 18 ${margin.top + innerH / 2})`, "text-anchor": "middle", fill: "#0f172a", "font-size": 12, "font-weight": "600", "font-family": "inherit" }).textContent = labels[state.y] + " grade";
+
+  // Statistics
+  const s = stats(data);
+  
+  // Regression Line
+  if (state.regression && Number.isFinite(s.slope)) {
+    const x0 = 2, x1 = 10;
+    add("line", {
+      class: "regression-line",
+      x1: x(x0), y1: y(s.intercept + s.slope * x0),
+      x2: x(x1), y2: y(s.intercept + s.slope * x1),
+      stroke: "#ef4444", "stroke-width": 2.5,
+      "stroke-linecap": "round"
+    });
+  }
+
+  // Draw data points
+  const tooltip = document.getElementById("tooltip");
+  data.forEach(row => {
+    const selected = state.selected === row.student_id;
+    const point = add("circle", {
+      class: `point${selected ? " selected" : ""}`,
+      cx: x(row[state.x]),
+      cy: y(row[state.y]),
+      r: selected ? 6.5 : 4.5,
+      fill: colors[row.country],
+      "fill-opacity": selected ? 1.0 : (row.gender === "female" ? 0.9 : 0.65),
+      stroke: selected ? "#0f172a" : "#ffffff",
+      "stroke-width": selected ? 2.5 : 1
+    });
+
+    // Point Interactions
+    point.addEventListener("click", (e) => {
+      state.selected = row.student_id;
+      render();
+      e.stopPropagation();
+    });
+
+    point.addEventListener("mouseenter", (e) => {
+      tooltip.style.opacity = 1;
+      tooltip.innerHTML = `
+        <strong>Student ID: ${row.student_id}</strong>
+        Country: ${row.country}<br>
+        Gender: ${row.gender === "male" ? "Male" : "Female"}<br>
+        ${labels[state.x]}: ${row[state.x].toFixed(1)}<br>
+        ${labels[state.y]}: ${row[state.y].toFixed(1)}
+      `;
+      updateTooltipPosition(e);
+    });
+
+    point.addEventListener("mousemove", (e) => {
+      updateTooltipPosition(e);
+    });
+
+    point.addEventListener("mouseleave", () => {
+      tooltip.style.opacity = 0;
+    });
+  });
+
+  // Clicking empty chart area resets selection
+  svg.addEventListener("click", () => {
+    state.selected = null;
+    render();
+  });
+
+  // Tooltip position helper
+  function updateTooltipPosition(e) {
+    const parentRect = svg.parentElement.getBoundingClientRect();
+    const xPos = e.clientX - parentRect.left + 15;
+    const yPos = e.clientY - parentRect.top - 15;
+    tooltip.style.left = `${xPos}px`;
+    tooltip.style.top = `${yPos}px`;
+  }
+
+  // Update DOM metrics
+  document.getElementById("countMetric").textContent = String(data.length);
+  document.getElementById("corrMetric").textContent = Number.isFinite(s.r) ? s.r.toFixed(3) : "-";
+  document.getElementById("slopeMetric").textContent = Number.isFinite(s.slope) ? s.slope.toFixed(3) : "-";
+  renderDetails(data.find(row => row.student_id === state.selected));
+}
+
+function renderDetails(row) {
+  const host = document.getElementById("details");
+  if (!row) {
+    host.innerHTML = `
+      <div class="detail-item"><span>Selection</span><strong>None</strong></div>
+      <div class="detail-item"><span>Country</span><strong>-</strong></div>
+      <div class="detail-item"><span>Gender</span><strong>-</strong></div>
+      <div class="detail-item"><span>X value</span><strong>-</strong></div>
+      <div class="detail-item"><span>Y value</span><strong>-</strong></div>`;
+    return;
+  }
+  host.innerHTML = `
+    <div class="detail-item"><span>Selection</span><strong>Student ${row.student_id}</strong></div>
+    <div class="detail-item"><span>Country</span><strong>${row.country}</strong></div>
+    <div class="detail-item"><span>Gender</span><strong>${row.gender === "male" ? "Male" : "Female"}</strong></div>
+    <div class="detail-item"><span>${labels[state.x]}</span><strong>${row[state.x].toFixed(1)}</strong></div>
+    <div class="detail-item"><span>${labels[state.y]}</span><strong>${row[state.y].toFixed(1)}</strong></div>`;
+}
+
+// Load data and run
+fetch("Student.csv")
+  .then(response => {
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.text();
+  })
+  .then(text => {
+    rows = parseCsv(text);
+    initControls();
+    render();
+    window.addEventListener("resize", render);
+  })
+  .catch(error => {
+    document.querySelector("section").innerHTML = `<p style="padding: 20px; color: #ef4444;">Student.csv could not be loaded: ${error.message}</p>`;
+  });
+</script>
+</body>
+</html>
